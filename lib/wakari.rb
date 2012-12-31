@@ -1,5 +1,11 @@
 require "wakari/version"
 
 module Wakari
-  # Your code goes here...
+  def self.load!
+    require 'wakari/engine'
+    require 'wakari/railtie'
+  end
+
 end
+
+Wakari.load!

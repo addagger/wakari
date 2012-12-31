@@ -8,12 +8,17 @@ Gem::Specification.new do |gem|
   gem.version       = Wakari::VERSION
   gem.authors       = ["Valery Kvon"]
   gem.email         = ["addagger@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.homepage      = %q{http://vkvon.ru/projects/wakari}
+  gem.description   = %q{Add translations for models}
+  gem.summary       = %q{Multilang assets for Rails}
+
+  gem.add_development_dependency "gaigo"
+  gem.add_development_dependency "acts_as_list"
+  gem.rubyforge_project = "wakari"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
+  gem.licenses       = ['MIT']
 end
