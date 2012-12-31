@@ -78,7 +78,7 @@ module Wakari
       end
 
       def current_translation
-         translation?(current_locale)
+         translation?(current_locale)||translations.first
       end
       
       def detect_current_translation
@@ -86,7 +86,7 @@ module Wakari
       end
             
       def to_s(locale = nil)
-        (locale ? translation?(locale) : current_translation||translations.first).try(:to_s)
+        (locale ? translation?(locale) : current_translation).try(:to_s)
       end
 
       private
