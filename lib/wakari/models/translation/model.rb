@@ -136,6 +136,14 @@ module Wakari
         locale
       end
 
+      def meta=(object)
+        begin
+          super
+        ensure
+          @_template_meta = object.dup
+        end
+      end
+
       private
     
       def template_meta
