@@ -39,8 +39,8 @@ module Wakari
         def acts_as_translation_class(content_class, association_name, meta_class, full_association_name, options)
           has_locale! *Array.wrap(options[:locales])#, :accessible => false
 
-          belongs_to :content, :class_name => content_class.name, :inverse_of => association_name, :counter_cache => :"#{association_name}_count"
-          belongs_to :meta, :class_name => meta_class.name, :inverse_of => full_association_name, :counter_cache => :wakari_used
+          belongs_to :content, :class_name => "::Object::#{content_class.name}", :inverse_of => association_name, :counter_cache => :"#{association_name}_count"
+          belongs_to :meta, :class_name => "::Object::#{meta_class.name}", :inverse_of => full_association_name, :counter_cache => :wakari_used
 
           self._meta_attributes =
           if meta_class < Wakari::Meta::Text || meta_class < Wakari::Meta::String

@@ -9,7 +9,7 @@ module Wakari
       module ClassMethods
     
         def acts_as_content_class(translation_class, association_name, options)
-          has_many association_name, :class_name => translation_class.name, :inverse_of => :content, :order => :position, :autosave => true, :foreign_key => :content_id
+          has_many association_name, :class_name => "::Object::#{translation_class.name}", :inverse_of => :content, :order => :position, :autosave => true, :foreign_key => :content_id
           default_scope { includes(association_name) }
         end
     
