@@ -13,16 +13,7 @@ module Wakari
         validates_presence_of :locale
         validates_uniqueness_of :locale, :scope => [:type, :content_id]
         before_save :commit_meta
-        after_destroy :clear_meta
-        validate do
-          unless meta_valid?
-            template_meta.errors.messages.each do |attribute, suberrors|
-              suberrors.each do |suberror|
-                errors.add(attribute, suberror)
-              end
-            end
-          end
-        end       
+        after_destroy :clear_meta     
         after_initialize do
           template_meta
         end
@@ -50,8 +41,8 @@ module Wakari
           end
 
           attr_accessible *_meta_attributes, :content_id, :meta_id, :_destroy, :position
-          delegate *_meta_attributes, :to_s, :to => "(@_template_meta||meta)"
-          delegate *_meta_attributes.collect {|attribute| "#{attribute}="}, :to => :template_meta
+          delegate_attributes *_meta_attributes, :to_s, :errors => :fit, :to => "(@_template_meta||meta)"
+          delegate_attributes *_meta_attributes.map {|attribute| "#{attribute}="}, :errors => false, :to => :template_meta
           
           (class << self; self; end).instance_eval do
             define_method :i18n_inherited_namespaced_scope do |resource| #:nodoc:
@@ -113,10 +104,6 @@ module Wakari
 
       def meta_changed?
         eval(_meta_attributes.map {|a| "template_meta.send(:#{a}) != meta.send(:#{a})"}.join(" || ")) ## content changed?
-      end
-      
-      def meta_valid?
-        template_meta.valid?
       end
 
       def match?(params = {})
