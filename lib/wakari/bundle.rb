@@ -75,7 +75,7 @@ module Wakari
             #{proxy_class}.new(self)
           end
           def #{name}=(*args)
-            #{proxy_class}.new(self).write(*args)
+            #{proxy_class}.new(self).assign(*args)
           end
         EOV
        else
@@ -103,7 +103,7 @@ module Wakari
     end
     
     def translation_class_args
-      [content_class, association_name, meta_class, full_association_name, translation_class_options]
+      [content_class, association_name, meta_class, full_association_name, proxy_class, translation_class_options]
     end
     
     def meta_class_options

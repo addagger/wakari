@@ -1,9 +1,12 @@
 require 'wakari/models/support/errors'
+require 'wakari/models/support/transition'
 
 module Wakari
   module Proxy
     module Model
       extend ActiveSupport::Concern
+
+      include Support::Transition::ProxyMethods
     
       included do
       end
@@ -46,15 +49,21 @@ module Wakari
       end
 
       def possible_langs
-        translations.klass._locales
+        Gaigo::Langs.new.tap do |g|
+          g.replace(translations.klass._locales)
+        end
       end
 
       def used_langs
-        translations.map {|t| t.lang}
+        Gaigo::Langs.new.tap do |g|
+          g.replace(translations.map {|t| t.lang})
+        end
       end
 
       def available_langs
-        possible_langs - used_langs
+        Gaigo::Langs.new.tap do |g|
+          g.replace(possible_langs - used_langs)
+        end
       end
 
       def default_translation
@@ -88,7 +97,7 @@ module Wakari
       def to_s(locale = nil)
         (locale ? translation?(locale) : current_translation).try(:to_s)
       end
-
+      
       private
 
       def build_translation(params = {})

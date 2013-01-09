@@ -1,11 +1,14 @@
 require 'wakari/models/support/naming'
+require 'wakari/models/support/transition'
 
 module Wakari
   module Translation
     
     module Model
       extend ActiveSupport::Concern
-      include Wakari::Support::Naming
+
+      include Support::Naming
+      include Support::Transition::TranslationMethods
       
       included do
         class_attribute :_meta_attributes unless defined?(_meta_attributes)
@@ -27,7 +30,7 @@ module Wakari
           model_name.element
         end
 
-        def acts_as_translation_class(content_class, association_name, meta_class, full_association_name, options)
+        def acts_as_translation_class(content_class, association_name, meta_class, full_association_name, proxy_class, options)
           has_locale! *Array.wrap(options[:locales])#, :accessible => false
 
           belongs_to :content, :class_name => "::Object::#{content_class.name}", :inverse_of => association_name, :counter_cache => :"#{association_name}_count"
@@ -54,8 +57,12 @@ module Wakari
             end
           end
 
+          define_method :proxy do
+            proxy_class ? proxy_class.new(content) : content
+          end
+
           define_method :stack do
-            content.send(association_name)
+            proxy ? proxy.translations : content.send(association_name)
           end
           
          end
@@ -113,10 +120,6 @@ module Wakari
 
       def meta_attributes
         Hash[_meta_attributes.map {|attr| value = send(attr); [attr.to_s, value] if value}.compact]
-      end
-
-      def lang
-        Gaigo::LANGS.get(locale)
       end
 
       def to_param

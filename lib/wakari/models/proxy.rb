@@ -19,9 +19,13 @@ module Wakari
       #   _translations_proc.call(content)
       # end
       
-      def write(params={})
-        detect_current_translation.tap do |t|
-          t.attributes = params.delete_if {|k| k.to_s == "locale"}
+      def assign(params={})
+        params.each do |key, value|
+          if Gaigo::LANGS.get_by_method(key)
+            send("#{key}=", value)
+          else
+            raise "Invalid language accessor passed: :#{key}"
+          end
         end
       end
       
