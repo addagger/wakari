@@ -33,16 +33,12 @@ module Wakari
           self
         end
       
-        def actual_translations
-          translations.select {|t| !t.marked_for_destruction?}
-        end
-      
-        def actual_order
-          actual_translations.map(&:locale)
+        def state_order
+          alive_translations.map(&:locale)
         end
         
         def add_translation_order(locale)
-          actual_order + [locale.to_s]
+          state_order + [locale.to_s]
         end
       
         private
@@ -72,7 +68,7 @@ module Wakari
     
       module TranslationMethods
         def move_up_order
-          order = proxy.actual_order
+          order = proxy.state_order
           index = order.index(locale) + 1
           unless index >= order.size
             order.insert(index, order.delete(locale))
@@ -81,7 +77,7 @@ module Wakari
         end
 
         def move_down_order
-          order = proxy.actual_order
+          order = proxy.state_order
           index = order.index(locale) - 1
           unless index < 0
             order.insert(index, order.delete(locale))
@@ -90,7 +86,7 @@ module Wakari
         end
       
         def remove_order
-          order = proxy.actual_order
+          order = proxy.state_order
           order.delete(locale)
           order
         end

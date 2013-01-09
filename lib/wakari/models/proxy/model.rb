@@ -56,8 +56,12 @@ module Wakari
 
       def used_langs
         Gaigo::Langs.new.tap do |g|
-          g.replace(translations.map {|t| t.lang})
+          g.replace(alive_translations.map {|t| t.lang})
         end
+      end
+
+			def alive_translations
+        translations.select {|t| !t.marked_for_destruction?}
       end
 
       def available_langs
