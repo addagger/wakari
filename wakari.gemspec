@@ -15,6 +15,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "gaigo"
   gem.add_development_dependency "acts_as_list"
   gem.add_development_dependency "delegate_attributes"
+  gem.add_development_dependency "kabuki"
+  
   gem.rubyforge_project = "wakari"
 
   gem.files         = `git ls-files`.split($/)

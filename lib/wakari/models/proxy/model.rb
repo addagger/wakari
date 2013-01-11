@@ -43,6 +43,7 @@ module Wakari
       def translations_attributes
         Hash[translations.map do |t|
                if (lang = t.lang) && (attributes = t.meta_attributes).present?
+                 attributes.merge!(:_delete => 1) if t.marked_for_destruction?
                  [lang.to_method, attributes]
                end
              end.compact]
@@ -60,7 +61,7 @@ module Wakari
         end
       end
 
-			def alive_translations
+      def alive_translations
         translations.select {|t| !t.marked_for_destruction?}
       end
 
