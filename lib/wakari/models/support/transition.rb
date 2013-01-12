@@ -35,9 +35,9 @@ module Wakari
         
         def wrap(bg = {}, &block)
           bg = bg.kabuki if bg.is_a?(String)
-          order = bg.delete(:order)||bg.delete("order")
+          engage(bg.delete(:order)||bg.delete("order"))
           bg.each do |key, value|
-            send(key, value, order, &block)
+            send(key, value, &block)
           end
         end
       
@@ -51,35 +51,18 @@ module Wakari
         
         # Transitions commands
         
-        def add(locale, order, &block)
-          engage(order << locale) do |t|
-            if t.locale == locale.to_s
-              t.instance_variable_set(:@marked_for_destruction, false) if t.marked_for_destruction?
-              yield(t, :add) if block_given?
-            end
-          end
+        def add(locale, &block)
+          t = detect_translation(locale)
+          t.instance_variable_set(:@marked_for_destruction, false) if t.marked_for_destruction?
+          yield(t, :add) if block_given?
+          sort(alive_order)
         end
         
-        def remove(locale, order, &block)
-          engage(order) do |t|
-            if t.locale == locale.to_s
-              t.persisted? ? t.mark_for_destruction : translations.target.delete(t) && translations.target.compact!
-              yield(t, :remove) if block_given?
-            end
-          end
-          sort(order - [locale])
-        end
-        
-        def move_up(locale, order, &block)
-          engage(move_up_locale(locale, order)) do |t|
-            yield(t, :move_up) if t.locale == locale.to_s && block_given?
-          end
-        end
-        
-        def move_down(locale, order, &block)
-          engage(move_down_locale(locale, order)) do |t|
-            yield(t, :move_down) if t.locale == locale.to_s && block_given?
-          end
+        def remove(locale, &block)
+          t = translation?(locale)
+          t.persisted? ? t.mark_for_destruction : translations.target.delete(t) && translations.target.compact!
+          yield(t, :remove) if block_given?
+          sort(alive_order)
         end
 
         # Recognize to locale
@@ -100,21 +83,21 @@ module Wakari
           end
         end
         
+        def remove_from_order(locale_or_object)
+          background.tap do |bg|
+            bg[:remove] = recognize(locale_or_object)
+          end
+        end
+
         def move_up_in_order(locale_or_object)
           background.tap do |bg|
-            bg[:move_up] = recognize(locale_or_object)
+            bg[:order] = move_up_locale(recognize(locale_or_object))
           end
         end
 
         def move_down_in_order(locale_or_object)
           background.tap do |bg|
-            bg[:move_down] = recognize(locale_or_object)
-          end
-        end
-      
-        def remove_from_order(locale_or_object)
-          background.tap do |bg|
-            bg[:remove] = recognize(locale_or_object)
+            bg[:order] = move_down_locale(recognize(locale_or_object))
           end
         end
       

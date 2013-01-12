@@ -102,7 +102,7 @@ module Wakari
       def to_s(locale = nil)
         (locale ? translation?(locale) : current_translation).try(:to_s)
       end
-      
+
       private
 
       def build_translation(params = {})
