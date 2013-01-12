@@ -1,5 +1,4 @@
 require 'wakari/models/support/naming'
-require 'wakari/models/support/transition'
 
 module Wakari
   module Translation
@@ -8,7 +7,6 @@ module Wakari
       extend ActiveSupport::Concern
 
       include Support::Naming
-      include Support::Transition::TranslationMethods
       
       included do
         class_attribute :_meta_attributes unless defined?(_meta_attributes)
@@ -25,11 +23,6 @@ module Wakari
       end
 
       module ClassMethods
-  
-        def dom_class
-          model_name.element
-        end
-
         def acts_as_translation_class(content_class, association_name, meta_class, full_association_name, proxy_class, options)
           has_locale! *Array.wrap(options[:locales])#, :accessible => false
 
@@ -57,14 +50,13 @@ module Wakari
             end
           end
 
-          define_method :proxy do
-            proxy_class ? proxy_class.new(content) : content
-          end
-
-          define_method :stack do
-            proxy ? proxy.translations : content.send(association_name)
-          end
-          
+          # define_method :proxy do
+          #   proxy_class ? proxy_class.new(content) : content
+          # end
+          # 
+          # define_method :stack do
+          #   proxy ? proxy.translations : content.send(association_name)
+          # end
          end
 
         def try_human_attribute_name(attribute, options = {})
@@ -81,7 +73,7 @@ module Wakari
       end
 
       def dom_id(prefix = nil)
-        [prefix, content.dom_id, self.class.dom_class, locale].compact.join("_")
+        DomInfo.new(self).id(prefix)
       end
 
       def _destroy=(value)
@@ -91,9 +83,9 @@ module Wakari
         end
       end
 
-      def siblings
-        stack - [self]
-      end
+      # def siblings
+      #   stack - [self]
+      # end
 
       def meta_counter
         counter = association(:meta).options[:counter_cache]

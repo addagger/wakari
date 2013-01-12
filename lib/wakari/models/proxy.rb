@@ -38,7 +38,7 @@ module Wakari
       end
 
       def dom_id(prefix = nil)
-        [prefix, content.dom_id, translations.klass.dom_class].compact.join("_")
+        DomInfo.new(self).id(prefix)
       end
       
     end

@@ -81,30 +81,40 @@ module Wakari
             yield(t, :move_down) if t.locale == locale.to_s && block_given?
           end
         end
-        
+
+				# Recognize to locale
+				
+				def recognize(locale_or_object)
+					case locale_or_object
+					when translations.klass then locale_or_object.locale
+					when String, Symbol then possible_langs.validate_codes(locale_or_object).first
+					else raise(TypeError, "Undefined type")
+					end
+				end
+
         # Transitions orders
       
-        def add_to_order(locale)
+        def add_to_order(locale_or_object)
           background.tap do |bg|
-            bg[:add] = locale
+            bg[:add] = recognize(locale_or_object)
           end
         end
         
-        def move_up_in_order(locale)
+        def move_up_in_order(locale_or_object)
           background.tap do |bg|
-            bg[:move_up] = locale
+            bg[:move_up] = recognize(locale_or_object)
           end
         end
 
-        def move_down_in_order(locale)
+        def move_down_in_order(locale_or_object)
           background.tap do |bg|
-            bg[:move_down] = locale
+            bg[:move_down] = recognize(locale_or_object)
           end
         end
       
-        def remove_from_order(locale, &block)
+        def remove_from_order(locale_or_object)
           background.tap do |bg|
-            bg[:remove] = locale
+            bg[:remove] = recognize(locale_or_object)
           end
         end
       
@@ -158,25 +168,52 @@ module Wakari
         def t_transitions
           Actor.new(self)
         end
+
         def t_transitions=(bg = {})
           transitions.wrap(bg)
         end
+				
+				# Recognize to translation object
+
+				def recognize(locale_or_object)
+					case locale_or_object
+					when translations.klass then locale_or_object
+					when String, Symbol then translation?(locale_or_object)
+					else raise(TypeError, "Undefined type")
+					end
+				end
+
+        # Transitions conditions
+
+				def alive_index(locale_or_object)
+					alive_translations.index(recognize(locale_or_object))
+				end
+				
+				def index(locale_or_object)
+					translations.index(recognize(locale_or_object))
+				end
+
+        def moveable_up?(locale_or_object)
+					alive_translations.first != recognize(locale_or_object)
+				end
+				
+				def moveable_down?(locale_or_object)
+					alive_translations.last != recognize(locale_or_object)
+				end
+				
+				def removeable?(locale_or_object)
+					!the_only_alive?(locale_or_object)
+				end
+				
+				def the_only_alive?(locale_or_object)
+					alive_translations.size == 1 && alive_translations.first == recognize(locale_or_object)
+				end
+				
+				def the_only?(locale_or_object)
+					translations.size == 1 && translations.first == recognize(locale_or_object)
+				end
       end
     
-      module TranslationMethods
-        def move_up_order
-          proxy.t_transitions.move_up_in_order(locale)
-        end
-
-        def move_down_order
-          proxy.t_transitions.move_down_in_order(locale)
-        end
-      
-        def remove_order
-          proxy.t_transitions.remove_from_order(locale)
-        end
-        
-      end
     end
   end
 end
