@@ -72,10 +72,10 @@ module Wakari
           attr_accessible :#{name}
           
           def #{name}
-            #{proxy_class}.new(self)
+            #{proxy_class}.new(self, "#{name}")
           end
           def #{name}=(*args)
-            #{proxy_class}.new(self).assign(*args)
+            #{proxy_class}.new(self, "#{name}").assign(*args)
           end
         EOV
        else

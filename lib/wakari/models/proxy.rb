@@ -5,14 +5,15 @@ module Wakari
     class Base
       #include ActiveModel::AttributeMethods
       include ActiveModel::MassAssignmentSecurity
-      attr_reader :content
+      attr_reader :content, :name
       delegate :current_locale, :current_lang, :to => :content
       delegate :==, :nil?, :present?, :to => :current_translation
       
       extend ActiveModel::Naming
       
-      def initialize(content)
+      def initialize(content, name)
         @content = content
+				@name = name
       end
       
       # def translations
