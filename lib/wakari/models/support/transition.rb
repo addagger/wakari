@@ -37,7 +37,11 @@ module Wakari
           bg = bg.kabuki if bg.is_a?(String)
           engage(bg.delete(:order)||bg.delete("order"))
           bg.each do |key, value|
-            send(key, value, &block) if key.to_s.in? %w{add remove}
+            if key.to_s.in? %w{add remove}
+              send(key, value, &block)
+            else
+              yield key, value if block_given?
+            end
           end
         end
       
@@ -54,14 +58,14 @@ module Wakari
         def add(locale, &block)
           t = detect_translation(locale)
           t.instance_variable_set(:@marked_for_destruction, false) if t.marked_for_destruction?
-          yield(t, :add) if block_given?
+          yield(:add, t) if block_given?
           sort(alive_order)
         end
         
         def remove(locale, &block)
           t = translation?(locale)
           t.persisted? ? t.mark_for_destruction : translations.target.delete(t) && translations.target.compact!
-          yield(t, :remove) if block_given?
+          yield(:remove, t) if block_given?
           sort(alive_order)
         end
 
@@ -146,8 +150,32 @@ module Wakari
         end
         
       end
-      
+
+      module LinkId
+        def select_link_id
+          dom_id + "_select_link"
+        end
+  
+        def add_link_id
+          dom_id + "_add_link"
+        end
+
+        def remove_link_id
+          dom_id + "_remove_link"
+        end
+
+        def move_up_link_id
+          dom_id + "_move_up_link"
+        end
+
+        def move_down_link_id
+          dom_id + "_move_down_link"
+        end
+      end
+
       module ProxyMethods
+        include LinkId
+  
         def t_transitions
           Actor.new(self)
         end
@@ -195,20 +223,11 @@ module Wakari
         def the_only?(locale_or_object)
           translations.size == 1 && translations.first == recognize(locale_or_object)
         end
+
       end
 
       module TranslationMethods
-        def remove_link_id
-          dom_id + "_remove_link"
-        end
-
-        def move_up_link_id
-          dom_id + "_move_up_link"
-        end
-
-        def move_down_link_id
-          dom_id + "_move_down_link"
-        end
+        include LinkId
       end
     
     end
