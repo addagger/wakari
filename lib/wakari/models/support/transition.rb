@@ -176,15 +176,15 @@ module Wakari
           translations.index(recognize(locale_or_object))
         end
 
-        def moveable_up?(locale_or_object)
+        def movable_up?(locale_or_object)
           alive_translations.first != recognize(locale_or_object)
         end
         
-        def moveable_down?(locale_or_object)
+        def movable_down?(locale_or_object)
           alive_translations.last != recognize(locale_or_object)
         end
         
-        def removeable?(locale_or_object)
+        def removable?(locale_or_object)
           !the_only_alive?(locale_or_object)
         end
         
@@ -194,6 +194,20 @@ module Wakari
         
         def the_only?(locale_or_object)
           translations.size == 1 && translations.first == recognize(locale_or_object)
+        end
+      end
+
+      module TranslationMethods
+        def remove_link_id
+          dom_id + "_remove_link"
+        end
+
+        def move_up_link_id
+          dom_id + "_move_up_link"
+        end
+
+        def move_down_link_id
+          dom_id + "_move_down_link"
         end
       end
     

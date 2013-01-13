@@ -1,4 +1,5 @@
 require "wakari/helpers/dom_info"
+require "wakari/helpers/transition"
 
 module Wakari
   
@@ -8,9 +9,8 @@ module Wakari
     included do
     end
     
-    def wdom_id(object, prefix = nil)
-      DomInfo.new(object).id(prefix)
-    end
+    include DomHelpers
+    include TransitionHelpers
 
   end
 

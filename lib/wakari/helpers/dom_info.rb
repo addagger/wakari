@@ -38,4 +38,12 @@ module Wakari
     end
   end
 
+  module DomHelpers
+
+    def wdom_id(object, prefix = nil)
+      DomInfo.new(object).id(prefix)
+    end
+  
+  end
+
 end

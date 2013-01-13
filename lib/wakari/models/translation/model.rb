@@ -1,4 +1,5 @@
 require 'wakari/models/support/naming'
+require 'wakari/models/support/transition'
 
 module Wakari
   module Translation
@@ -7,6 +8,7 @@ module Wakari
       extend ActiveSupport::Concern
 
       include Support::Naming
+      include Support::Transition::TranslationMethods
       
       included do
         class_attribute :_meta_attributes unless defined?(_meta_attributes)
@@ -70,6 +72,10 @@ module Wakari
           try_human_attribute_name(attribute, options)
         end
         
+      end
+
+      def fields_path
+        self.class._to_fields_path
       end
 
       def dom_id(prefix = nil)

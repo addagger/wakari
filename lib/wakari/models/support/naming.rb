@@ -37,7 +37,11 @@ module Wakari
             "#{model_name.collection}/#{model_name.element}".freeze
           end
         end
-  
+
+        def _to_fields_path #:nodoc:
+          "#{model_name.collection}/fields"
+        end  
+
         def model_name
           @_model_name ||= begin
             namespace = self.parents.detect do |n|
