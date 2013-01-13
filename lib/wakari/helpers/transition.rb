@@ -1,6 +1,10 @@
 module Wakari
   class TransitionUrl
-    def initialize(proxy, locale_or_object, action, options = {})
+    def initialize(builder, proxy, locale_or_object, action, options = {})
+      @object_name = case builder
+      when String, Symbol then builder
+      when ActionView::Helpers::FormBuilder then builder.object_name
+      end
       @proxy = proxy
       @translation, @lang = *case locale_or_object
       when Wakari::Translation::Model then
@@ -24,9 +28,9 @@ module Wakari
     def transition
       case @action
       when :select then
-        @proxy.t_transitions.background.merge(:select => true, :object_name => @options[:builder].object_name)
+        @proxy.t_transitions.background.merge(:select => true)
       when :add then
-        @proxy.t_transitions.add_to_order(@lang.code).merge(:object_name => @options[:builder].object_name)
+        @proxy.t_transitions.add_to_order(@lang.code)
       when :remove then
         @proxy.t_transitions.remove_from_order(@translation)
       when :move_up then
@@ -37,7 +41,7 @@ module Wakari
     end
     
     def url_hash
-      @path.merge(@proxy.translations_key => transition.kabuki!)
+      @path.merge(@proxy.translations_key => transition.merge(:object_name => @object_name).kabuki!)
     end
     
   end
