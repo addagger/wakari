@@ -31,8 +31,8 @@ module Wakari
           delegate *translation_class._meta_attributes, :to => :current_translation, :allow_nil => true
           delegate *translation_class._meta_attributes.collect {|attribute| "#{attribute}="}, :to => :detect_current_translation, :allow_nil => true
 
-          define_method :translation_key do
-            translation_class.model_name.param_key
+          define_method :translations_key do
+            association_name
           end
 
           if self < Wakari::Proxy::Base
@@ -107,7 +107,7 @@ module Wakari
         (locale ? translation?(locale) : current_translation).try(:to_s)
       end
 
-      def translateable
+      def translatable
         dedicated_proxy? ? content : self
       end
 

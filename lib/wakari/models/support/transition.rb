@@ -37,7 +37,7 @@ module Wakari
           bg = bg.kabuki if bg.is_a?(String)
           engage(bg.delete(:order)||bg.delete("order"))
           bg.each do |key, value|
-            send(key, value, &block)
+            send(key, value, &block) if key.to_s.in? %w{add remove}
           end
         end
       
