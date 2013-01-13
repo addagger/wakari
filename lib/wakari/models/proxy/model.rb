@@ -107,6 +107,18 @@ module Wakari
         (locale ? translation?(locale) : current_translation).try(:to_s)
       end
 
+      def translateable
+        dedicated_proxy? ? content : self
+      end
+
+      def integrated_proxy?
+        !dedicated_proxy?
+      end
+
+      def dedicated_proxy?
+        is_a?(Wakari::Proxy::Base)
+      end
+
       private
 
       def build_translation(params = {})

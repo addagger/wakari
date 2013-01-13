@@ -13,7 +13,7 @@ module Wakari
       
       def initialize(content, name)
         @content = content
-				@name = name
+        @name = name
       end
       
       # def translations
