@@ -1,18 +1,26 @@
 module Wakari
   class FormBuilder
-    attr_reader :template, :builder, :proxy
-    
-    
+    attr_reader :template, :builder, :proxy, :proxy_builder
+        
     def initialize(template, builder, proxy)
       @template = template
       @proxy = proxy
       @builder = builder
+      if proxy.dedicated_proxy?
+        @builder.fields_for(proxy.name) do |proxy_builder|
+          @proxy_builder = proxy_builder
+        end
+      end
     end
-    
+
+    def base_builder
+      @proxy_builder||@builder
+    end
+
     class Translation
-      attr_reader :form_builder, :translation, :lang, :t_builder
+      attr_reader :translation, :lang, :builder
       
-      delegate :template, :proxy, :url_hash, :builder, :to => :form_builder
+      delegate :template, :proxy, :url_hash, :base_builder, :to => :@form_builder
       
       def initialize(form_builder, locale_or_object)
         @form_builder = form_builder
@@ -27,18 +35,16 @@ module Wakari
         else
           [nil, nil]
         end
-        
-        if proxy.dedicated_proxy?
-          @form_builder.builder.fields_for proxy.name do |proxy_name_builder|
-            @proxy_builder = proxy_name_builder
-          end
-        end
-      
-        (@proxy_builder||builder).fields_for @translation.lang.to_method, @translation do |translation_builder|
-          @t_builder = translation_builder
+
+        base_builder.fields_for(@translation.lang.to_method, @translation) do |translation_builder|
+          @builder = translation_builder
         end
       end
-      
+
+      def field_name(name)
+        builder.object_name + "[#{name}]"
+      end
+
       def fields
         @translation.marked_for_destruction? ? render_destroy_hidden_field : render_fields
       end
@@ -48,7 +54,7 @@ module Wakari
       end
       
       def render_fields
-        template.render(@translation.fields_path, :f => @t_builder, :builder => builder, :proxy => proxy, :translation => translation)
+        template.render(@translation.fields_path, :f => @builder, :proxy => proxy, :translation => translation)
       end
       
       def transition_url(action, path = {})
@@ -82,7 +88,6 @@ module Wakari
       url_hash(@proxy.t_transitions.add_to_order(locale), path)
     end
     
-    
     def url_hash(hash, path = {})
       recognize_path(path).merge(@proxy.translations_key => hash.merge(:object_name => builder.object_name).kabuki!)
     end
@@ -100,16 +105,22 @@ module Wakari
   end
   
   module FormBuilderHelpers
-    def t_form_builder(builder_or_object_name, proxy)
-      case builder_or_object_name
-      when String, Symbol then
-        fields_for builder_or_object_name do |custom_builder|
-          builder = custom_builder
-        end
-      when ActionView::Helpers::FormBuilder then
-        builder = builder_or_object_name
-      end
-      FormBuilder.new(self, builder, proxy)
-    end
+    #     def t_form_builder(proxy)
+    #       @_wakari_form_builders.try(:[], proxy.object_id)
+    #     end
+    # 
+    # def t_form_builder_set(builder_or_object_name, proxy)
+    #   case builder_or_object_name
+    #       when String, Symbol then
+    #         fields_for builder_or_object_name do |custom_builder|
+    #           builder = custom_builder
+    #         end
+    #       when ActionView::Helpers::FormBuilder then
+    #         builder = builder_or_object_name
+    #       end
+    #   @_wakari_form_builders ||= {}
+    #       @_wakari_form_builders[proxy.object_id] = FormBuilder.new(self, builder, proxy)
+    # end
+
   end
 end
