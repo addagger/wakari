@@ -10,9 +10,9 @@ module Wakari
     end
     
     class Translation
-      attr_reader :form_builder, :translation, :lang, :builder
+      attr_reader :form_builder, :translation, :lang, :t_builder
       
-      delegate :template, :proxy, :url_hash, :to => :form_builder
+      delegate :template, :proxy, :url_hash, :builder, :to => :form_builder
       
       def initialize(form_builder, locale_or_object)
         @form_builder = form_builder
@@ -30,12 +30,12 @@ module Wakari
         
         if proxy.dedicated_proxy?
           @form_builder.builder.fields_for proxy.name do |proxy_name_builder|
-             @proxy_builder = proxy_name_builder
+            @proxy_builder = proxy_name_builder
           end
         end
       
-        (@proxy_builder||@form_builder.builder).fields_for @translation.lang.to_method, @translation do |translation_builder|
-          @builder = translation_builder
+        (@proxy_builder||builder).fields_for @translation.lang.to_method, @translation do |translation_builder|
+          @t_builder = translation_builder
         end
       end
       
@@ -44,11 +44,11 @@ module Wakari
       end
       
       def render_destroy_hidden_field
-        @builder.hidden_field :_destroy
+        @t_builder.hidden_field :_destroy
       end
       
       def render_fields
-        template.render(@translation.fields_path, :f => @builder, :proxy => proxy, :translation => translation)
+        template.render(@translation.fields_path, :f => @t_builder, :builder => builder, :proxy => proxy, :translation => translation)
       end
       
       def transition_url(action, path = {})

@@ -37,10 +37,12 @@ module Wakari
           bg = bg.kabuki if bg.is_a?(String)
           engage(bg.delete(:order)||bg.delete("order"))
           bg.each do |key, value|
-            if key.to_s.in? %w{add remove}
-              send(key, value, &block)
-            else
-              yield key, value if block_given?
+            if key.to_s.in? %w{add remove select}
+              if respond_to?(key)
+                send(key, value, &block)
+              elsif block_given?
+                yield(key, value)
+              end
             end
           end
         end
