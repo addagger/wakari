@@ -1,5 +1,5 @@
 require "wakari/helpers/dom_info"
-require "wakari/helpers/transition"
+require "wakari/helpers/form_builder"
 
 module Wakari
   
@@ -10,7 +10,7 @@ module Wakari
     end
     
     include DomHelpers
-    include TransitionHelpers
+    include FormBuilderHelpers
 
   end
 
