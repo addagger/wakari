@@ -35,6 +35,10 @@ module Wakari
             association_name
           end
 
+					define_method :t_model_name do
+            translation_class.model_name
+          end
+
           if self < Wakari::Proxy::Base
             define_method :translations do |*args|
               content.send(association_name, *args)

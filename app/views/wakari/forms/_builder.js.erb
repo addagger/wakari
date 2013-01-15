@@ -1,0 +1,56 @@
+<% if bg = params[proxy.translations_key] %>
+
+  <% proxy.t_transitions.wrap(bg) do |action, translation| %>
+    <% if action == :select %>
+      $('#<%= proxy.dom_id("select_locale") %>').html('<%= escape_javascript(render("people/names/select_locale", :proxy => proxy)) %>')
+    <% end %>
+
+    <% if action == :add %>
+      $('#<%= proxy.dom_id %>').find('#<%= translation.dom_id %>').remove();
+      $('#<%= proxy.dom_id %>').append('<%= escape_javascript(translation_fields(proxy, translation)) %>');
+      $('#<%= proxy.dom_id("select_locale") %>').html('<%= escape_javascript(render("people/names/select_link", :proxy => proxy)) %>');
+    <% end %>
+
+    <% if action == :remove %>
+      <% if translation.persisted? %>
+        $('#<%= proxy.dom_id %>').find('#<%= translation.dom_id %>').replaceWith('<%= escape_javascript(translation_fields(proxy, translation)) %>');
+      <% else %>
+        $('#<%= proxy.dom_id %>').find('#<%= translation.dom_id %>').remove();
+      <% end %>
+    <% end %>
+	// alert('<%= t_form_builder(proxy).builder.object_name %>')
+  <% end %>
+	
+	var alive = $('#<%= proxy.dom_id %>').children().filter(function(index) {
+		var marked_for_destruction = $(this).find('input[name$="[_destroy]"][value="true"]');
+	  if (marked_for_destruction.length == 0) {
+	    	return true;
+	    };
+	});
+	
+	alive.each(function(index) {
+		$(this).find('input[name$="[position]"]').attr("value", index+1);
+		var remove_link = $(this).find('span[id$="remove_link"]');
+		var move_up_link = $(this).find('span[id$="move_up_link"]');
+		var move_down_link = $(this).find('span[id$="move_down_link"]');
+		
+		if (index == 0) {
+			move_up_link.hide();
+		} else {
+			move_up_link.show();
+		};
+		if (index+1 == alive.length) {
+			move_down_link.hide();
+		} else {
+			move_down_link.show();
+		};
+		if (alive.length == 1) {
+			remove_link.hide();
+		} else {
+			remove_link.show();
+		};
+		
+	});
+
+
+<% end %>

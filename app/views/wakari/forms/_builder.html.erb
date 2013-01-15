@@ -1,0 +1,20 @@
+<% if bg = params[proxy.translations_key] %>
+  <% proxy.t_transitions.wrap(bg) %>
+<% end %>
+<% proxy.detect_current_translation if proxy.translations.blank? %>
+
+<div id="<%= proxy.dom_id %>">
+
+  <% proxy.translations.each do |translation| %>
+    <%= translation_fields(proxy, translation) %>
+  <% end %>
+  
+</div>
+
+<span id="<%= proxy.dom_id("select_locale") %>">
+  <% if bg && bg.kabuki[:select] == true %>
+    <%= render "#{proxy.t_model_name.collection}/select_locale" %>
+  <% else %>
+    <%= render "#{proxy.t_model_name.collection}/select_link" %>
+  <% end %>
+</span>
