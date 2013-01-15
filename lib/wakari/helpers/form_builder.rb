@@ -50,11 +50,11 @@ module Wakari
       end
       
       def render_destroy_hidden_field
-        @t_builder.hidden_field :_destroy
+        @builder.hidden_field :_destroy
       end
       
       def render_fields
-        template.render(@translation.fields_path, :f => @builder, :proxy => proxy, :translation => translation)
+        template.render(@translation.fields_path, :f => @builder, :proxy => proxy, :translation => @translation)
       end
       
       def transition_url(action, path = {})
