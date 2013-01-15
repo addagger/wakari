@@ -13,8 +13,8 @@
 
 <span id="<%= proxy.dom_id("select_locale") %>">
   <% if bg && bg.kabuki[:select] == true %>
-    <%= render "#{proxy.t_model_name.collection}/select_locale" %>
+    <%= render "#{proxy.t_model_name.collection}/select_locale", :proxy => proxy %>
   <% else %>
-    <%= render "#{proxy.t_model_name.collection}/select_link" %>
+    <%= render "#{proxy.t_model_name.collection}/select_link", :proxy => proxy %>
   <% end %>
 </span>
