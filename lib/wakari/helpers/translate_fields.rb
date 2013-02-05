@@ -36,7 +36,7 @@ module Wakari
       end
     
       def select_locale(*args)
-        Assets::SelectLocaleContent.new(self)
+        eval "@#{__method__} ||= Assets::SelectLocaleContent.new(self)"
       end
 
       def get_config_value(*args)
@@ -79,11 +79,11 @@ module Wakari
       end
 
       def fields
-        Assets::Fields.new(self)
+        eval "@#{__method__} ||= Assets::Fields.new(self)"
       end
 
       def link_to_select_locale
-        Assets::LinkToSelectLocale.new(self)
+        eval "@#{__method__} ||= Assets::LinkToSelectLocale.new(self)"
       end
     
       def link_to_add_fields(lang_or_locale)
@@ -91,7 +91,7 @@ module Wakari
         when Gaigo::Langs::Lang then lang_or_locale
         else proxy.available_langs.get(lang_or_locale)
         end
-        Assets::LinkToAddLocale.new(lang, self)
+        eval "@#{__method__}_#{lang.to_method} ||= Assets::LinkToAddLocale.new(lang, self)"
       end
 
       def js_correction
