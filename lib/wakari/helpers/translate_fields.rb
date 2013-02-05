@@ -49,7 +49,7 @@ module Wakari
           method_name = [c.name.demodulize.underscore, key].compact.join("_")
           begin
             result = get_config_value(method_name, *args)
-          rescue
+          rescue NoMethodError
           end
           break if result || c == Object
         end

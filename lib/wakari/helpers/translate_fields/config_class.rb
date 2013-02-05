@@ -66,7 +66,7 @@ module Wakari
         end
 
         def content_js_remove(template, content)
-          %Q{$('##{tag_id}').remove();}
+          %Q{$('##{content.tag_id}').remove();}
         end
 
         def select_locale_content_js_appear(template, select_locale)
