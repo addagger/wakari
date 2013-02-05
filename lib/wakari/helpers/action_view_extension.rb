@@ -1,5 +1,5 @@
 require "wakari/helpers/dom_info"
-require "wakari/helpers/form_builder"
+require "wakari/helpers/translate_fields"
 
 module Wakari
   
@@ -10,8 +10,7 @@ module Wakari
     end
     
     include DomHelpers
-    include FormBuilderHelpers
-
+    include TranslateFieldsHelpers
   end
 
 end

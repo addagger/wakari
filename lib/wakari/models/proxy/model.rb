@@ -35,7 +35,7 @@ module Wakari
             association_name
           end
 
-					define_method :t_model_name do
+          define_method :t_model_name do
             translation_class.model_name
           end
 

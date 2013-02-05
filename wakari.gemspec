@@ -12,10 +12,9 @@ Gem::Specification.new do |gem|
   gem.description   = %q{Add translations for models}
   gem.summary       = %q{Multilang assets for Rails}
 
-  gem.add_development_dependency "gaigo"
-  gem.add_development_dependency "acts_as_list"
-  gem.add_development_dependency "delegate_attributes"
-  gem.add_development_dependency "kabuki"
+  gem.add_dependency "gaigo"
+  gem.add_dependency "acts_as_list"
+  gem.add_dependency "active_tools"
   
   gem.rubyforge_project = "wakari"
 

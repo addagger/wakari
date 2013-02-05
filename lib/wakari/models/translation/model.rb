@@ -8,7 +8,6 @@ module Wakari
       extend ActiveSupport::Concern
 
       include Support::Naming
-      include Support::Transition::TranslationMethods
       
       included do
         class_attribute :_meta_attributes unless defined?(_meta_attributes)

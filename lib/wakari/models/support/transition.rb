@@ -153,31 +153,7 @@ module Wakari
         
       end
 
-      module LinkId
-        def select_link_id
-          dom_id + "_select_link"
-        end
-  
-        def add_link_id
-          dom_id + "_add_link"
-        end
-
-        def remove_link_id
-          dom_id + "_remove_link"
-        end
-
-        def move_up_link_id
-          dom_id + "_move_up_link"
-        end
-
-        def move_down_link_id
-          dom_id + "_move_down_link"
-        end
-      end
-
       module ProxyMethods
-        include LinkId
-  
         def t_transitions
           Actor.new(self)
         end
@@ -226,10 +202,6 @@ module Wakari
           translations.size == 1 && translations.first == recognize(locale_or_object)
         end
 
-      end
-
-      module TranslationMethods
-        include LinkId
       end
     
     end
