@@ -57,7 +57,7 @@ module Wakari
       end
 
       def t_translations
-        proxy.translations.map {|t| translation(t)}
+        proxy.translations.sort_by(&:position).map {|t| translation(t)}
       end
 
       def translation(locale_or_object)
@@ -114,6 +114,18 @@ module Wakari
         if t = transitions[:remove]
           fields = translation(t).fields
           buffer << (t.persisted? ? fields.js_removing_persisted : fields.js_removing)
+          buffer << link_to_select_locale.js_refresh
+          buffer << js_correction
+        end
+        if t = transitions[:move_up]
+          fields = translation(t).fields
+          buffer << fields.js_moving_up
+          buffer << link_to_select_locale.js_refresh
+          buffer << js_correction
+        end
+        if t = transitions[:move_down]
+          fields = translation(t).fields
+          buffer << fields.js_moving_down
           buffer << link_to_select_locale.js_refresh
           buffer << js_correction
         end

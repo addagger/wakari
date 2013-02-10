@@ -50,14 +50,6 @@ module Wakari
               :"#{content_class.i18n_default_scope(resource)}.#{model_name.element}"
             end
           end
-
-          # define_method :proxy do
-          #   proxy_class ? proxy_class.new(content) : content
-          # end
-          # 
-          # define_method :stack do
-          #   proxy ? proxy.translations : content.send(association_name)
-          # end
          end
 
         def try_human_attribute_name(attribute, options = {})
@@ -88,9 +80,9 @@ module Wakari
         end
       end
 
-      # def siblings
-      #   stack - [self]
-      # end
+      def unmark_for_destruction
+        instance_variable_set(:@marked_for_destruction, false)
+      end
 
       def meta_counter
         counter = association(:meta).options[:counter_cache]

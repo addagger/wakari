@@ -37,7 +37,7 @@ module Wakari
           bg = bg.kabuki if bg.is_a?(String)
           engage(bg.delete(:order)||bg.delete("order"))
           bg.each do |key, value|
-            if key.to_s.in? %w{add remove select}
+            if key.to_s.in? %w{add remove select move_up move_down}
               if respond_to?(key)
                 send(key, value, &block)
               elsif block_given?
@@ -50,25 +50,41 @@ module Wakari
         def alive_order
           alive_translations.map(&:locale)
         end
+
+        def order
+          translations.map {|t| t.marked_for_destruction? ? "#{t.locale}_" : t.locale}
+        end
         
         def background
-          {:order => alive_order}
+          {:order => order}
         end
         
         # Transitions commands
         
         def add(locale, &block)
           t = detect_translation(locale)
-          t.instance_variable_set(:@marked_for_destruction, false) if t.marked_for_destruction?
-          yield(:add, t) if block_given?
+          t.unmark_for_destruction if t.marked_for_destruction?
+          yield(__method__, t) if block_given?
           sort(alive_order)
         end
         
         def remove(locale, &block)
           t = translation?(locale)
           t.persisted? ? t.mark_for_destruction : translations.target.delete(t) && translations.target.compact!
-          yield(:remove, t) if block_given?
+          yield(__method__, t) if block_given?
           sort(alive_order)
+        end
+
+        def move_up(locale, &block)
+          t = translation?(locale)
+          yield(__method__, t) if block_given?
+          sort(move_up_locale(t.locale))
+        end
+        
+        def move_down(locale, &block)
+          t = translation?(locale)
+          yield(__method__, t) if block_given?
+          sort(move_down_locale(t.locale))
         end
 
         # Recognize to locale
@@ -97,13 +113,13 @@ module Wakari
 
         def move_up_in_order(locale_or_object)
           background.tap do |bg|
-            bg[:order] = move_up_locale(recognize(locale_or_object))
+            bg[:move_up] = recognize(locale_or_object)
           end
         end
 
         def move_down_in_order(locale_or_object)
           background.tap do |bg|
-            bg[:order] = move_down_locale(recognize(locale_or_object))
+            bg[:move_down] = recognize(locale_or_object)
           end
         end
       
@@ -128,24 +144,36 @@ module Wakari
         end
 
         def engage_order(order = [], &block) # only with used locales
-          order = possible_langs.validate_codes(*order, :raise => true)
-          (order|used_langs.codes).each.with_index do |locale, index|
-            t = detect_translation(locale)
-            translations.target.insert(index, translations.target.delete(t))
-            if block_given?
-              yield t, index+1
+          index = 0
+          order.each do |locale|
+            t = detect_translation(locale[/[a-z]*/])
+            if locale[/_\z/]
+              t.mark_for_destruction
+            else
+              t.unmark_for_destruction if t.marked_for_destruction?
+              translations.target.insert(index, translations.target.delete(t))
+              index += 1
+              if block_given?
+                yield t, index
+              end
             end
           end
           translations.target.compact!
         end
 
         def iterate_order(order = [], &block) # only with used locales
-          order = used_langs.validate_codes(*order, :raise => true)
-          (order|used_langs.codes).each.with_index do |locale, index|
-            t = translation(locale)
-            translations.target.insert(index, translations.target.delete(t))
-            if block_given?
-              yield t, index+1
+          index = 0
+          order.each do |locale|
+            t = translation(locale[/[a-z]*/])
+            if locale[/_\z/]
+              t.mark_for_destruction
+            else
+              t.unmark_for_destruction if t.marked_for_destruction?
+              translations.target.insert(index, translations.target.delete(t))
+              index += 1
+              if block_given?
+                yield t, index
+              end
             end
           end
           translations.target.compact!
@@ -168,6 +196,7 @@ module Wakari
           case locale_or_object
           when translations.klass then locale_or_object
           when String, Symbol then translation?(locale_or_object)
+          when nil then nil
           else raise(TypeError, "Undefined type")
           end
         end
@@ -200,6 +229,20 @@ module Wakari
         
         def the_only?(locale_or_object)
           translations.size == 1 && translations.first == recognize(locale_or_object)
+        end
+
+        def next_to(locale_or_object)
+          if index = alive_index(locale_or_object)
+            next_index = index + 1
+            translations.at(next_index) if next_index <= alive_translations.size - 1
+          end
+        end
+
+        def prev_to(locale_or_object)
+          if index = alive_index(locale_or_object)
+            prev_index = index - 1
+            translations.at(prev_index) if prev_index >= 0
+          end
         end
 
       end

@@ -70,11 +70,31 @@ module Wakari
         end
 
         def select_locale_content_js_appear(template, select_locale)
-          "$('##{select_locale.tag_id}').replaceWith('#{template.escape_javascript(select_locale.html)}').hide().fadeIn();"
+          %Q{$('##{select_locale.tag_id}').replaceWith('#{template.escape_javascript(select_locale.html)}').hide().fadeIn();"}
         end
 
         def select_locale_content_js_disappear(template, select_locale)
-          "$('##{select_locale.tag_id}').empty();"
+          %Q{$('##{select_locale.tag_id}').empty();}
+        end
+
+        def translation_fields_js_moving_up(template, fields)
+          %Q{
+            $('##{fields.prev.tag_id}').fadeOut();
+            $('##{fields.tag_id}').hide('slide', { direction: "up" }, 200, function() {
+              $(this).insertBefore('##{fields.prev.tag_id}').show('slide', { direction: "down" }, 200);
+              $('##{fields.prev.tag_id}').fadeIn();
+              });
+            }
+        end
+        
+        def translation_fields_js_moving_down(template, fields)
+          %Q{
+            $('##{fields.next.tag_id}').fadeOut();
+            $('##{fields.tag_id}').hide('slide', { direction: "down" }, 200, function() {
+              $(this).insertAfter('##{fields.next.tag_id}').show('slide', { direction: "up" }, 200);
+              $('##{fields.next.tag_id}').fadeIn();
+              });
+            }
         end
 
         def translation_fields_js_refresh_position(template, fields)
@@ -90,7 +110,7 @@ module Wakari
         end
 
         def translation_fields_js_removing_persisted(template, fields)
-          %Q{$('##{fields.tag_id}').replaceWith('#{template.escape_javascript(fields.html)}');}
+          %Q{$('##{fields.tag_id}').fadeOut(300, function(){ $(this).replaceWith('#{template.escape_javascript(fields.html)}'); });}
         end
 
       end

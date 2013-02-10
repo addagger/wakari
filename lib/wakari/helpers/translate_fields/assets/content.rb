@@ -19,6 +19,9 @@ module Wakari
       
         def content
         end
+
+        def unvisible_content
+        end
   
         def default_tag
           t_builder.get_config_value_for_class(self.class, __method__, template, self)
@@ -32,7 +35,7 @@ module Wakari
           options = args.extract_options!
           tag = args.first||default_tag
           html_options = tag_attributes(:id => tag_id, :style => visible? ? nil : "display: none;").merge(default_html_options).merge(options).stringify_values
-          content_tag tag, visible? ? content : nil, html_options
+          content_tag tag, visible? ? content : unvisible_content, html_options
         end
   
         def js_remove
@@ -80,19 +83,43 @@ module Wakari
     
       class TranslationFields < Content
         delegate :position, :to => :translation
-    
+
+        def visible?
+          translation && !translation.marked_for_destruction?
+        end
+
         def content
-          if translation.marked_for_destruction?
-            t_builder.builder.hidden_field :_destroy
-          else
+          if visible?
             render(translation.fields_path, :f => t_builder.builder, :t_builder => t_builder)
+          else
+            t_builder.builder.hidden_field :_destroy
           end
         end
-      
+
+        def unvisible_content
+          content
+        end
+
         def tag_id
           translation.dom_id(:fields)
         end
-  
+
+        def next
+          t_builder.next.try(:fields)
+        end
+        
+        def prev
+          t_builder.prev.try(:fields)
+        end
+
+        def js_moving_up
+          t_builder.get_config_value_for_class(self.class, __method__, template, self)
+        end
+
+        def js_moving_down
+          t_builder.get_config_value_for_class(self.class, __method__, template, self)
+        end
+
         def js_refresh_position
           t_builder.get_config_value_for_class(self.class, __method__, template, self)
         end

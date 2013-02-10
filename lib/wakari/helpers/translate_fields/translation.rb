@@ -38,6 +38,22 @@ module Wakari
         eval "@#{__method__} ||= Assets::LinkToMoveDownFields.new(self)"
       end
 
+      def next
+        if @base.transitions[:move_down] == translation
+          @base.translation(proxy.prev_to(translation))
+        else
+          @base.translation(proxy.next_to(translation))
+        end
+      end
+      
+      def prev
+        if @base.transitions[:move_up] == translation
+          @base.translation(proxy.next_to(translation))
+        else
+          @base.translation(proxy.prev_to(translation))
+        end
+      end
+      
       def removable?
         proxy.removable?(translation)
       end
