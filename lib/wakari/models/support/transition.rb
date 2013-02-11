@@ -52,7 +52,7 @@ module Wakari
         end
 
         def order
-          translations.map {|t| t.marked_for_destruction? ? "#{t.locale}_" : t.locale}
+          translations.map {|t| t.marked_for_destruction? ? "#{t.locale}*" : t.locale}
         end
         
         def background
@@ -146,8 +146,8 @@ module Wakari
         def engage_order(order = [], &block) # only with used locales
           index = 0
           order.each do |locale|
-            t = detect_translation(locale[/[a-z]*/])
-            if locale[/_\z/]
+            t = detect_translation(locale[/(\w|-)+/])
+            if locale[/\*\z/]
               t.mark_for_destruction
             else
               t.unmark_for_destruction if t.marked_for_destruction?
@@ -164,8 +164,8 @@ module Wakari
         def iterate_order(order = [], &block) # only with used locales
           index = 0
           order.each do |locale|
-            t = translation(locale[/[a-z]*/])
-            if locale[/_\z/]
+            t = detect_translation(locale[/(\w|-)+/])
+            if locale[/\*\z/]
               t.mark_for_destruction
             else
               t.unmark_for_destruction if t.marked_for_destruction?
